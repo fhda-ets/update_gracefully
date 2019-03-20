@@ -4,7 +4,13 @@ Apply yum updates and notify the sysadmin if restart is required
 ## About
 
 This script will automatically create the log and config files if they do not exist.  This script uses ONLY core Perl modules - no additional modules need to be 
-installed.
+installed.  As the script requires root access to perform sytsem updates, it is expected that you will run this file out of the root cron.  We recommed something 
+similar to the following:
+
+```
+# RUN THE SCRIPT AT THREE AM EVERY DAY:
+0 3 * * * /opt/git/update_gracefully/update_gracefully.pl
+```
 
 ## Config Options
 
@@ -29,4 +35,5 @@ sysadmin-email variable as specified below:
 sysadmin-email=user@host.com
 ```
 
-
+Note that you can generally achieve the same functionality by dropping a .forward entry containing the email address into the home folder of the root user 
+(typically /root).
