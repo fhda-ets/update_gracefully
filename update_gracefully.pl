@@ -29,10 +29,6 @@ if ($restart) { $auto_restart = 'yes'; }
 
 if ($override_email ne '') { $sysadmin_email = $override_email; }
 
-
-
-die "Sending email to $sysadmin_email\n";
-
 # GET SOME INFORMATION ABOUT THE STATE OF THIS SYSTEM
 chomp (my $server_name = `/usr/bin/hostname`);
 my $all_ips = `cat /etc/sysconfig/network-scripts/ifcfg-* | grep -i ipaddr | uniq`;
