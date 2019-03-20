@@ -39,16 +39,16 @@ my $all_ips = `cat /etc/sysconfig/network-scripts/ifcfg-* | grep -i ipaddr | uni
 
 # STEP 1a: LET'S MAKE SURE THE LOG FILE EXISTS
 unless (-e $logfile) {
-	print "Log file not found at [ $logfile ].  Attempting to create log file...\n";
+	print_log(" - Log file not found at [ $logfile ].  Attempting to create log file...\n");
 	my $result = `touch $logfile`;
 	if ($result ne '') {
-		die "Log file does not exist and cannot be created: [$result].\n";
+		die "\n\nLog file does not exist and cannot be created: [$result].\n";
 	}
 }
 
 # STEP 1b: LET'S MAKE SURE THE needs-restarting COMMAND IS AVAILABLE FROM yum-utils
 unless (-e '/usr/bin/needs-restarting') {
-	print_log("yum-utils does not appear to be installed.  Installing...  ");
+	print_log(" - yum-utils does not appear to be installed.  Installing...  ");
 	my $get_yum_utils_cmd = '/usr/bin/yum -y install yum-utils';
 	my $result = `$get_yum_utils_cmd`;
 	if ($result =~ /Complete/i) { print_log("Success.\n"); }
