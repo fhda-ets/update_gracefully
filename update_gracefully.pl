@@ -143,12 +143,17 @@ sub show_help {
 	print <<"END_HELP";
 Showing usage information.
 
-$0 [-h|--help] [-c|--cron]
+$0 [-h|--help] [-c|--cron] [-r|--restart] [-e|--email user@host.com]
 	-h | --help	Display this help message and exit.
 	-c | --cron	Suppress all non-error messages.
+	-r | --restart	Override the default / config file and restart if needed.
+	-e | --email	Override the default / config file and email specified address.
 
 This code will run the yum updater and install any new packages.  In the event a package requires
 a reboot, the code will send an email to the system administrator with the appropriate information.
+
+You may optionally specifiy that the default actions be overridden.  Please see the github README.md
+for more information.
 
 END_HELP
 	exit;

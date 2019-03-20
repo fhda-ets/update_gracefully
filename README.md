@@ -1,10 +1,12 @@
 # update_gracefully
-Apply yum updates and notify the sysadmin if restart is required
+
+Use the yum package manager to apply any available updates to the system and notify the sysadmin if restart is required.  Optionally - automatically restart the 
+system and/or notify other users.
 
 ## About
 
 This script will automatically create the log and config files if they do not exist.  This script uses ONLY core Perl modules - no additional modules need to be 
-installed.  As the script requires root access to perform sytsem updates, it is expected that you will run this file out of the root cron.  We recommed something 
+installed.  As the script requires root access to perform system updates, it is expected that you will run this file out of the root cron.  We recommed something 
 similar to the following:
 
 ```
@@ -28,8 +30,8 @@ autorestart=yes
 
 ### Overriding the email address to notify of changes
 
-By default, the system will attempt to email the user running the script.  If you wish to send emails to a different address, you can do so by overriding the 
-sysadmin-email variable as specified below:
+By default, the system will attempt to email the user running the script.  If you wish to send emails to a different address, you can do so by calling the system 
+with --email, or by overriding the sysadmin-email variable as specified below:
 
 ```
 sysadmin-email=user@host.com
