@@ -10,7 +10,7 @@ installed.  As the script requires root access to perform system updates, it is 
 similar to the following:
 
 ```
-# RUN THE SCRIPT AT THREE AM EVERY DAY:
+# CHECK FOR UPDATES AT THREE AM EVERY DAY:
 0 3 * * * /opt/update_gracefully/update_gracefully.pl --cron
 ```
 

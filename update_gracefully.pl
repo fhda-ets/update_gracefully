@@ -153,7 +153,7 @@ Specifiying --cron will cause the system to suppress all non-error output which 
 on STDOUT.  This is useful when you wish to run the script from cron without redirecting cron out
 to /dev/null.  It is expected the script will be called from cron via an entry such as:
 
-# RUN THE SCRIPT AT THREE AM EVERY DAY:
+# CHECK FOR UPDATES AT THREE AM EVERY DAY:
 0 3 * * * /opt/update_gracefully/update_gracefully.pl
 
 You may optionally specifiy that the default actions be overridden.  Please see the github README.md
