@@ -11,7 +11,7 @@ similar to the following:
 
 ```
 # RUN THE SCRIPT AT THREE AM EVERY DAY:
-0 3 * * * /opt/git/update_gracefully/update_gracefully.pl --cron
+0 3 * * * /opt/update_gracefully/update_gracefully.pl --cron
 ```
 
 ## Config Options

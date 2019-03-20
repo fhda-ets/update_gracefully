@@ -154,7 +154,7 @@ on STDOUT.  This is useful when you wish to run the script from cron without red
 to /dev/null.  It is expected the script will be called from cron via an entry such as:
 
 # RUN THE SCRIPT AT THREE AM EVERY DAY:
-0 3 * * * /opt/git/update_gracefully/update_gracefully.pl
+0 3 * * * /opt/update_gracefully/update_gracefully.pl
 
 You may optionally specifiy that the default actions be overridden.  Please see the github README.md
 for more information.
