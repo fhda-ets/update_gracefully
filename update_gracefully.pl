@@ -20,6 +20,10 @@ if ($help) { show_help(); }
 # WHERE SHOULD WE LOG DATA?
 my $logfile = '/var/log/update_gracefully.log';
 
+# WHEN DID WE START?
+chomp (my $current_time = `/usr/bin/date +"%Y-%m-%d %H:%M"`);
+print_log("Beginning script at $current_time.\n");
+
 # WHO SHOULD GET THE NOTIFICATION EMAILS?
 chomp (my $sysadmin_email = `/usr/bin/whoami`);
 if ($email ne '') { $sysadmin_email = $email; }
@@ -32,8 +36,6 @@ if ($override_email ne '') { $sysadmin_email = $override_email; }
 # GET SOME INFORMATION ABOUT THE STATE OF THIS SYSTEM
 chomp (my $server_name = `/usr/bin/hostname`);
 my $all_ips = `cat /etc/sysconfig/network-scripts/ifcfg-* | grep -i ipaddr | uniq`;
-chomp (my $current_time = `/usr/bin/date +"%Y-%m-%d %H:%M"`);
-print_log("Beginning script at $current_time.\n");
 
 # STEP 1a: LET'S MAKE SURE THE LOG FILE EXISTS
 unless (-e $logfile) {
@@ -64,21 +66,21 @@ if (($result =~ /failed/i) or ($result =~ /error/i)) {
 	print_log("$result\n");
 }
 elsif ($result =~ /No packages marked for update/i) {
-	print_log("No updates to apply.  Exiting gracefully.\n");
+	print_log(" - No updates to apply.  Exiting gracefully.\n");
 	unless ($restart) { exit; }
-	print_log("Script called with --restart, overridding exit and will check for update required anyway...\n");
+	print_log(" - Script called with --restart, overridding exit and will check for update required anyway...\n");
 }
 
 # STEP 3: CHECK TO SEE IF RESTART IS REQUIRED
 my $restart_required_cmd = '/usr/bin/needs-restarting -r; echo $?';
 $result = `$restart_required_cmd`;
 if ($result =~ /Reboot is probably not necessary/i) {
-	print_log("Reboot does not appear to be required at this time.\n");
+	print_log(" - Reboot does not appear to be required at this time.\n");
 }
 elsif ($result =~ /Reboot is required to ensure that your system benefits from these updates/i) {
 
 	if ($auto_restart =~ /yes/i) {
-		print_log("We're living on the edge and automatically restarting.\n");
+		print_log(" - We're living on the edge and automatically restarting.\n");
 		my $sub = "Server $server_name AUTOMATICALLY REBOOTED after applying patches!";
 		my $body = $sub . "\n\nIt's probabaly a good idea to check that it came up OK!\n";
 		$body .= "List of IPs for this server:\n$all_ips";
@@ -87,7 +89,7 @@ elsif ($result =~ /Reboot is required to ensure that your system benefits from t
 		sleep 30;
 		my $result = `/usr/sbin/shutdown -r now`;
 	}
-	print_log("Reboot required.  Notifying sysadmin.\n");
+	print_log(" - Reboot required.  Notifying sysadmin.\n");
 	my $sub = "Server $server_name requires a reboot after applying patches!";
 	my $body = $sub . "\n\nPlease schedule a reboot with the end-users at an appropriate time.";
 	$body .= "List of IPs for this server:\n$all_ips";
@@ -167,19 +169,24 @@ sub check_config {
 	my $auto_restart = 0;
 	my $override_email = '';
 	my $config_file = $FindBin::Bin . '/config.txt';
-	print_log("Checking $config_file for auto-restart info...  ");
+	print_log(" - Parsing $config_file...");
 	if (-e $config_file) {
 		open (my $FH, '<', $config_file);
 		while (my $row = <$FH>) {
-			if ($row =~ /^autorestart\s*=*\s*(\S+)$/i) { $auto_restart = $1; }
-			print_log("Using auto-restart value of $auto_restart.\n");
+			if ($row =~ /^autorestart\s*=*\s*(\S+)$/i) {
+				$auto_restart = $1;
+				print_log("  auto-restart: $auto_restart.");
+			}
 			if ($row =~ /^sysadmin-email\s*=*\s*(\S+)$/i) {
 				$override_email = $1;
 				if ($override_email =~ /=/) { $override_email = ''; }
 #				if (($override_email eq '=') or ($override_email eq '')) { $override_email = $sysadmin_email; }
+				else {
+					print_log("  email override: $override_email.");
+				}
 			}
 		}
-		print_log("Using sysadmin email value of $override_email.\n");
+		print "\n";
 		return ($auto_restart, $override_email);
 	}
 	else {
