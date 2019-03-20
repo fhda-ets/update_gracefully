@@ -143,7 +143,7 @@ sub show_help {
 	print <<"END_HELP";
 Showing usage information.
 
-$0 [-h|--help] [-c|--cron] [-r|--restart] [-e|--email user@host.com]
+$0 [-h|--help] [-c|--cron] [-r|--restart] [-e|--email user\@host.com]
 	-h | --help	Display this help message and exit.
 	-c | --cron	Suppress all non-error messages.
 	-r | --restart	Override the default / config file and restart if needed.
@@ -151,6 +151,13 @@ $0 [-h|--help] [-c|--cron] [-r|--restart] [-e|--email user@host.com]
 
 This code will run the yum updater and install any new packages.  In the event a package requires
 a reboot, the code will send an email to the system administrator with the appropriate information.
+
+Specifiying --cron will cause the system to suppress all non-error output which is typically output
+on STDOUT.  This is useful when you wish to run the script from cron without redirecting cron out
+to /dev/null.  It is expected the script will be called from cron via an entry such as:
+
+# RUN THE SCRIPT AT THREE AM EVERY DAY:
+0 3 * * * /opt/git/update_gracefully/update_gracefully.pl
 
 You may optionally specifiy that the default actions be overridden.  Please see the github README.md
 for more information.
