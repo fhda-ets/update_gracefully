@@ -30,8 +30,9 @@ autorestart=yes
 
 ### Overriding the email address to notify of changes
 
-By default, the system will attempt to email the user running the script.  If you wish to send emails to a different address, you can do so by calling the system 
-with --email, or by overriding the sysadmin-email variable as specified below:
+By default, the system will attempt to email the user running the script.  If you wish to send emails to a 
+different address, you can do so by calling the system with --email, or by overriding the sysadmin-email 
+variable as specified below:
 
 ```
 sysadmin-email=user@host.com
@@ -39,3 +40,16 @@ sysadmin-email=user@host.com
 
 Note that you can generally achieve the same functionality by dropping a .forward entry containing the email address into the home folder of the root user 
 (typically /root).
+
+### Overriding the mail exchange smtp server 
+
+By default, the system will attempt to send email via the local host.  If you wish to specify a different 
+smtp server, you can do so by calling the system with --smtp, or by overriding the smtp variable as 
+specified below:
+
+```
+smtp=host.domain.com
+```
+
+Note that this is most commonly done to bypass the "[EXT]: " subject prefix when emails are received from 
+addresses/servers not associated with your organization.
