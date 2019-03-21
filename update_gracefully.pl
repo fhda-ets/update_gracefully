@@ -186,7 +186,7 @@ sub check_config {
 				}
 			}
 		}
-		print "\n";
+		print_log("\n");
 		return ($auto_restart, $override_email);
 	}
 	else {
