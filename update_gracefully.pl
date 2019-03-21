@@ -4,9 +4,10 @@ use strict;
 use Getopt::Long;
 use FindBin;
 use lib $FindBin::Bin;
-my $help=0; my $cron=0; my $restart=0; my $email='';
+my $help=0; my $cron=0; my $restart=0; my $email=''; my $smtp='';
 GetOptions (	"h|help" => \$help,
 		"c|cron" => \$cron,
+		"s|smtp=s" => \$smtp,
 		"r|restart" => \$restart,
 		"e|email=s" => \$email,
 ) or die "Error in command line arguments.\n";
@@ -28,10 +29,10 @@ print_log("Beginning script at $current_time.\n");
 chomp (my $sysadmin_email = `/usr/bin/whoami`);
 if ($email ne '') { $sysadmin_email = $email; }
 
-(my $auto_restart, my $override_email) = check_config();
+(my $auto_restart, my $override_email, my $override_smtp) = check_config();
 if ($restart) { $auto_restart = 'yes'; }
-
 if ($override_email ne '') { $sysadmin_email = $override_email; }
+if ($override_smtp ne '') { $smtp = $override_smtp; }
 
 # GET SOME INFORMATION ABOUT THE STATE OF THIS SYSTEM
 chomp (my $server_name = `/usr/bin/hostname`);
@@ -110,7 +111,9 @@ sub send_email {
 	my $subject = shift;
 	my $body = shift;
 	my $attempts = 5;
-	my $send_email_string = "echo \"$body\" | mailx -s \"$subject\" \"$sysadmin_email\" 2>&1";
+	my $smtp_string = '';
+	if ($smtp ne '') { $smtp_string = "-S smtp=smtp://$smtp"; }
+	my $send_email_string = "echo \"$body\" | mailx $smtp_string -s \"$subject\" \"$sysadmin_email\" 2>&1";
 	my $email_result = '';
 	my $num_tries;
 	for ($num_tries = 0; $num_tries <= $attempts; $num_tries++) {
@@ -170,6 +173,7 @@ END_HELP
 sub check_config {
 	my $auto_restart = 0;
 	my $override_email = '';
+	my $override_smtp = '';
 	my $config_file = $FindBin::Bin . '/config.txt';
 	print_log(" - Parsing $config_file...");
 	if (-e $config_file) {
@@ -179,17 +183,23 @@ sub check_config {
 				$auto_restart = $1;
 				print_log("  auto-restart: $auto_restart.");
 			}
-			if ($row =~ /^sysadmin-email\s*=*\s*(\S+)$/i) {
+			elsif ($row =~ /^sysadmin-email\s*=*\s*(\S+)$/i) {
 				$override_email = $1;
 				if ($override_email =~ /=/) { $override_email = ''; }
-#				if (($override_email eq '=') or ($override_email eq '')) { $override_email = $sysadmin_email; }
 				else {
 					print_log("  email override: $override_email.");
 				}
 			}
+			elsif ($row =~ /^smtp\s*=*\s*(\S+)$/i) {
+				$override_smtp = $1;
+				if ($override_smtp =~ /=/) { $override_smtp = ''; }
+				else {
+					print_log("  smtp override: $override_smtp.");
+				}
+			}
 		}
 		print_log("\n");
-		return ($auto_restart, $override_email);
+		return ($auto_restart, $override_email, $override_smtp);
 	}
 	else {
 		# IF THE CONFIG FILE DOESN'T EXIST YET, LET'S CREATE IT
