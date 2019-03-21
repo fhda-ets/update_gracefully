@@ -44,7 +44,7 @@ unless (-e $logfile) {
 	if ($result ne '') {
 		die "\n\nLog file does not exist and cannot be created: [$result].\n";
 	}
-	print_lot("   Success.\n");
+	print_log("   Success.\n");
 }
 
 # STEP 1b: LET'S MAKE SURE THE needs-restarting COMMAND IS AVAILABLE FROM yum-utils
