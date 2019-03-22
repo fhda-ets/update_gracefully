@@ -51,5 +51,5 @@ specified below:
 smtp=host.domain.com
 ```
 
-Note that this is most commonly done to bypass the "[EXT]: " subject prefix when emails are received from 
+Note that this is most commonly done to bypass the "[EXT]: " email subject prefix when emails are received from 
 addresses/servers not associated with your organization.
