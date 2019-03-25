@@ -207,5 +207,5 @@ sub check_config {
 		my $result = `echo "autorestart=no\nsysadmin-email=">$config_file`;
 		print_log("File does not exist.  Creating config file at $config_file.\n");
 	}
-	return ('no', $sysadmin_email);
+	return ('no', $sysadmin_email, '');
 }
