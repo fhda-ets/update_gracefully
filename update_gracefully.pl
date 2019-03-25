@@ -61,7 +61,7 @@ unless (-e '/usr/bin/needs-restarting') {
 }
 
 # STEP 2: USE yum TO INSTALL ANY NEW UPDATES
-print_log(" - Attempting to installing new updates with [ yum -y update ]. (This may take a while!).\n");
+print_log(" - Attempting to installing new updates with [ yum -y update ]. (This may take a while!)\n");
 my $yum_update_cmd = '/usr/bin/yum -y update';
 my $result = `$yum_update_cmd`;
 if (($result =~ /failed/i) or ($result =~ /error/i)) {
