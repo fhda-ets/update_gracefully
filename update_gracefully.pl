@@ -42,6 +42,11 @@ if ($rh6) {
 	chomp ($server_name = `/bin/hostname`);
 }
 else {
+	unless (-e '/usr/bin/hostname/') {
+		my $err  = "\n\nI don't see the hostname command at /usr/bin/hostname!  Are you running a RH6 system?\n";
+		   $err .= "If so, please add:\nrh6=yes\n to your config.txt file and try again.  You may also run this ";
+		   $err .= "command with the -v option.\n\n";
+	}
 	chomp ($server_name = `/usr/bin/hostname`);
 }
 my $all_ips = `cat /etc/sysconfig/network-scripts/ifcfg-* | grep -i ipaddr | uniq`;
