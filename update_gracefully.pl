@@ -4,11 +4,12 @@ use strict;
 use Getopt::Long;
 use FindBin;
 use lib $FindBin::Bin;
-my $help=0; my $cron=0; my $restart=0; my $email=''; my $smtp='';
+my $help=0; my $cron=0; my $restart=0; my $email=''; my $smtp=''; my $version = 0;
 GetOptions (	"h|help" => \$help,
 		"c|cron" => \$cron,
 		"s|smtp=s" => \$smtp,
 		"r|restart" => \$restart,
+		"v|version" => \$version,
 		"e|email=s" => \$email,
 ) or die "Error in command line arguments.\n";
 if ($help) { show_help(); }
@@ -29,8 +30,9 @@ print_log("Beginning script at $current_time.\n");
 chomp (my $sysadmin_email = `/usr/bin/whoami`);
 if ($email ne '') { $sysadmin_email = $email; }
 
-(my $auto_restart, my $override_email, my $override_smtp) = check_config();
+(my $auto_restart, my $override_email, my $override_smtp, my $rh6) = check_config();
 if ($restart) { $auto_restart = 'yes'; }
+if ($version) { $rh6 = 'yes'; }
 if ($override_email ne '') { $sysadmin_email = $override_email; }
 if ($override_smtp ne '') { $smtp = $override_smtp; }
 
@@ -75,13 +77,38 @@ elsif ($result =~ /No packages marked for update/i) {
 }
 
 # STEP 3: CHECK TO SEE IF RESTART IS REQUIRED
-my $restart_required_cmd = '/usr/bin/needs-restarting -r; echo $?';
-$result = `$restart_required_cmd`;
-if ($result =~ /Reboot is probably not necessary/i) {
+my $should_reboot = 0;
+my $yum_err_msg = '';
+if ($rh6) {
+	print "Let's assume RH 6...\n";
+
+	my $restart_required_cmd = '/usr/bin/needs-restarting; echo $?';
+	$result = `$restart_required_cmd`;
+	if ($result =~ /sbin\/init/i) {
+		$should_reboot = 1;
+	}
+	else {
+		$should_reboot = 0;
+	}
+}
+else {
+	my $restart_required_cmd = '/usr/bin/needs-restarting -r; echo $?';
+	$result = `$restart_required_cmd`;
+	if ($result =~ /Reboot is probably not necessary/i) {
+		$should_reboot = 0;
+	}
+	elsif ($result =~ /Reboot is required to ensure that your system benefits from these updates/i) {
+		$should_reboot = 0;
+	}
+	else {
+		$should_reboot = 2;
+		$yum_err_msg = $result;
+	}
+}
+if ($should_reboot == 0) {
 	print_log(" - Reboot does not appear to be required at this time.\n");
 }
-elsif ($result =~ /Reboot is required to ensure that your system benefits from these updates/i) {
-
+elsif ($should_reboot == 1) {
 	if ($auto_restart =~ /yes/i) {
 		print_log(" - We're living on the edge and automatically restarting.\n");
 		my $sub = "Server $server_name AUTOMATICALLY REBOOTED after applying patches!";
@@ -104,6 +131,7 @@ else {
 	my $body = $sub . "\n\nAfter applying patches to $server_name, needs-restarting did not return a result";
 	$body .= " I know how to handle.  Please login and check the logs to see what needs to be done!\n";
 	$body .= "List of IPs for this server:\n$all_ips";
+	$body .= $yum_err_msg;
 	send_email($sub, $body);
 }
 
@@ -173,6 +201,7 @@ END_HELP
 
 sub check_config {
 	my $auto_restart = 0;
+	my $rh6 = '';
 	my $override_email = '';
 	my $override_smtp = '';
 	my $config_file = $FindBin::Bin . '/config.txt';
@@ -183,6 +212,10 @@ sub check_config {
 			if ($row =~ /^autorestart\s*=*\s*(\S+)$/i) {
 				$auto_restart = $1;
 				print_log("  auto-restart: $auto_restart.");
+			}
+			elsif ($row =~ /^rh6\s*=*\s*(\S+)\s*$/i) {
+				$rh6 = $1;
+				unless ($rh6 =~ /no/i) { print_log("  Assume RedHat/CentOS version 6."); }
 			}
 			elsif ($row =~ /^sysadmin-email\s*=*\s*(\S+)$/i) {
 				$override_email = $1;
@@ -200,7 +233,7 @@ sub check_config {
 			}
 		}
 		print_log("\n");
-		return ($auto_restart, $override_email, $override_smtp);
+		return ($auto_restart, $override_email, $override_smtp, $rh6);
 	}
 	else {
 		# IF THE CONFIG FILE DOESN'T EXIST YET, LET'S CREATE IT
