@@ -37,7 +37,13 @@ if ($override_email ne '') { $sysadmin_email = $override_email; }
 if ($override_smtp ne '') { $smtp = $override_smtp; }
 
 # GET SOME INFORMATION ABOUT THE STATE OF THIS SYSTEM
-chomp (my $server_name = `/usr/bin/hostname`);
+my $server_name = '';
+if ($rh6) {
+	chomp ($server_name = `/bin/hostname`);
+}
+else {
+	chomp ($server_name = `/usr/bin/hostname`);
+}
 my $all_ips = `cat /etc/sysconfig/network-scripts/ifcfg-* | grep -i ipaddr | uniq`;
 
 # STEP 1a: LET'S MAKE SURE THE LOG FILE EXISTS
