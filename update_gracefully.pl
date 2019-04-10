@@ -42,7 +42,7 @@ if ($rh6) {
 	chomp ($server_name = `/bin/hostname`);
 }
 else {
-	unless (-e '/usr/bin/hostname/') {
+	unless (-e '/usr/bin/hostname') {
 		my $err  = "\n\nI don't see the hostname command at /usr/bin/hostname!  Are you running a RH6 system?\n";
 		   $err .= "If so, please add:\nrh6=yes\n to your config.txt file and try again.  You may also run this ";
 		   $err .= "command with the -v option.\n\n";
@@ -129,6 +129,7 @@ elsif ($should_reboot == 1) {
 		send_email($sub, $body);
 		# WE SHOULD WAIT A FEW SECONDS FOR THE EMAIL TO BE SENT BEFORE WE REBOOT
 		sleep 30;
+		if ($rh6) { my $result = `/sbin/shutdown -r now`; }
 		my $result = `/usr/sbin/shutdown -r now`;
 	}
 	print_log(" - Reboot required.  Notifying sysadmin.\n");
