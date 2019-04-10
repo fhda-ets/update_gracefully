@@ -110,7 +110,7 @@ else {
 		$should_reboot = 0;
 	}
 	elsif ($result =~ /Reboot is required to ensure that your system benefits from these updates/i) {
-		$should_reboot = 0;
+		$should_reboot = 1;
 	}
 	else {
 		$should_reboot = 2;
