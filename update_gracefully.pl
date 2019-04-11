@@ -22,10 +22,6 @@ if ($help) { show_help(); }
 # WHERE SHOULD WE LOG DATA?
 my $logfile = '/var/log/update_gracefully.log';
 
-# WHEN DID WE START?
-chomp (my $current_time = `/usr/bin/date +"%Y-%m-%d %H:%M"`);
-print_log("Beginning script at $current_time.\n");
-
 # WHO SHOULD GET THE NOTIFICATION EMAILS?
 chomp (my $sysadmin_email = `/usr/bin/whoami`);
 if ($email ne '') { $sysadmin_email = $email; }
@@ -35,6 +31,7 @@ if ($restart) { $auto_restart = 'yes'; }
 if ($version) { $rh6 = 'yes'; }
 if ($override_email ne '') { $sysadmin_email = $override_email; }
 if ($override_smtp ne '') { $smtp = $override_smtp; }
+
 
 # GET SOME INFORMATION ABOUT THE STATE OF THIS SYSTEM
 my $server_name = '';
@@ -50,6 +47,14 @@ else {
 	}
 	chomp ($server_name = `/usr/bin/hostname`);
 }
+
+# WHEN DID WE START?
+my $date_cmd = '/usr/bin/date';
+if ($rh6) { $date_cmd = '/bin/date'; }
+$date_cmd .= ' +"%Y-%m-%d %H:%M"';
+chomp (my $current_time = `$date_cmd`);
+print_log("Beginning script at $current_time.\n");
+
 my $all_ips = `cat /etc/sysconfig/network-scripts/ifcfg-* | grep -i ipaddr | uniq`;
 
 # STEP 1a: LET'S MAKE SURE THE LOG FILE EXISTS
