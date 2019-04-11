@@ -46,10 +46,17 @@ Note that you can generally achieve the same functionality by dropping a .forwar
 By default, the system will attempt to send email via the local host.  If you wish to specify a different 
 smtp server, you can do so by calling the system with --smtp, or by overriding the smtp variable as 
 specified below:
-
 ```
 smtp=host.domain.com
 ```
 
 Note that this is most commonly done to bypass the "[EXT]: " email subject prefix when emails are received from 
 addresses/servers not associated with your organization.
+
+### Specify CentOS/RHEL 6
+
+By default, the system will assume CentOS/RHEL 7.  You can override this via the --version option, or by modifying the config.txt file:
+```
+rh6=yes
+```
+
