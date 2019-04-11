@@ -77,24 +77,25 @@ unless (-e '/usr/bin/needs-restarting') {
 # STEP 2: USE yum TO INSTALL ANY NEW UPDATES
 print_log(" - Attempting to installing new updates with [ yum -y update ]. (This may take a while!)\n");
 my $yum_update_cmd = '/usr/bin/yum -y update';
-my $result = `$yum_update_cmd`;
-if (($result =~ /failed/i) or ($result =~ /error/i)) {
+my $yum_result = `$yum_update_cmd`;
+if (($yum_result =~ /failed/i) or ($yum_result =~ /error/i)) {
 	print_log("Possible error while applying updates.  Output of [yum -y update] attached...\n");
-	print_log("$result\n");
+	print_log("$yum_result\n");
 }
-elsif ($result =~ /No packages marked for update/i) {
+elsif ($yum_result =~ /No packages marked for update/i) {
 	print_log(" - No updates to apply.  Exiting gracefully.\n");
 	unless ($restart) { exit; }
 	print_log(" - Script called with --restart, overridding exit and will check for update required anyway...\n");
 }
 
 # STEP 3: CHECK TO SEE IF RESTART IS REQUIRED
+my $result = '';
 my $should_reboot = 0;
 my $yum_err_msg = '';
 if ($rh6) {
 	print "Let's assume RH 6...\n";
 
-	my $restart_required_cmd = '/usr/bin/needs-restarting; echo $?';
+	my $restart_required_cmd = '/usr/bin/needs-restarting';
 	$result = `$restart_required_cmd`;
 	if ($result =~ /sbin\/init/i) {
 		$should_reboot = 1;
@@ -125,17 +126,20 @@ elsif ($should_reboot == 1) {
 		print_log(" - We're living on the edge and automatically restarting.\n");
 		my $sub = "Server $server_name AUTOMATICALLY REBOOTED after applying patches!";
 		my $body = $sub . "\n\nIt's probabaly a good idea to check that it came up OK!\n";
-		$body .= "List of IPs for this server:\n$all_ips";
+		$body .= "List of IPs for this server:\n$all_ips\n\n";
+		$body .= "Output of yum install cmd:\n$yum_result";
 		send_email($sub, $body);
 		# WE SHOULD WAIT A FEW SECONDS FOR THE EMAIL TO BE SENT BEFORE WE REBOOT
 		sleep 30;
 		if ($rh6) { my $result = `/sbin/shutdown -r now`; }
 		my $result = `/usr/sbin/shutdown -r now`;
+		exit;
 	}
 	print_log(" - Reboot required.  Notifying sysadmin.\n");
 	my $sub = "Server $server_name requires a reboot after applying patches!";
 	my $body = $sub . "\n\nPlease schedule a reboot with the end-users at an appropriate time.";
-	$body .= "List of IPs for this server:\n$all_ips";
+	$body .= "List of IPs for this server:\n$all_ips\n";
+	$body .= "Output of yum install cmd:\n$yum_result";
 	send_email($sub, $body);
 }
 else {
