@@ -70,12 +70,12 @@ unless (-e $logfile) {
 # STEP 1b: LET'S MAKE SURE THE needs-restarting COMMAND IS AVAILABLE FROM yum-utils
 unless (-e '/usr/bin/needs-restarting') {
 	print_log(" - yum-utils does not appear to be installed.  Installing...  ");
-	my $get_yum_utils_cmd = '/usr/bin/yum -y install yum-utils';
+	my $get_yum_utils_cmd = '/usr/bin/yum -y install yum-utils 2>&1';
 	my $result = `$get_yum_utils_cmd`;
 	if ($result =~ /Complete/i) { print_log("Success.\n"); }
 	else {
 		print_log("Could not install yum-utils: [$result].\n");
-		 die "Ugh.";
+		 die "Ugh.  Could not install yum-utils: [$result].\n";
 	}
 }
 
