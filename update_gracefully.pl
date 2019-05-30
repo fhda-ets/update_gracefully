@@ -98,7 +98,7 @@ my $result = '';
 my $should_reboot = 0;
 my $yum_err_msg = '';
 if ($rh6) {
-	print "Let's assume RH 6...\n";
+#	print_log("Let's assume RH 6...\n");
 
 	my $restart_required_cmd = '/usr/bin/needs-restarting';
 	$result = `$restart_required_cmd`;
