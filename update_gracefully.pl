@@ -127,12 +127,16 @@ if ($should_reboot == 0) {
 	print_log(" - Reboot does not appear to be required at this time.\n");
 }
 elsif ($should_reboot == 1) {
+	chomp(my $current_timestamp = `/bin/date +"%Y-%m-%d %H:%M:%S"`);
+
 	if ($auto_restart =~ /yes/i) {
+		print_log(" - Timestamp: $current_timestamp.\n");
 		print_log(" - We're living on the edge and automatically restarting.\n");
 		my $sub = "Server $server_name AUTOMATICALLY REBOOTED after applying patches!";
 		my $body = $sub . "\n\nIt's probabaly a good idea to check that it came up OK!\n";
 		$body .= "List of IPs for this server:\n$all_ips\n\n";
 		$body .= "Output of yum install cmd:\n$yum_result";
+		$body .= "Message sent at the following timestamp: $current_timestamp.";
 		send_email($sub, $body);
 		# WE SHOULD WAIT A FEW SECONDS FOR THE EMAIL TO BE SENT BEFORE WE REBOOT
 		sleep 30;
@@ -142,9 +146,11 @@ elsif ($should_reboot == 1) {
 	}
 	print_log(" - Reboot required.  Notifying sysadmin.\n");
 	my $sub = "Server $server_name requires a reboot after applying patches!";
-	my $body = $sub . "\n\nPlease schedule a reboot with the end-users at an appropriate time.";
+	my $body = $sub . "\n\nPlease schedule a reboot with the end-users at an appropriate time.\n";
 	$body .= "List of IPs for this server:\n$all_ips\n";
-	$body .= "Output of yum install cmd:\n$yum_result";
+	$body .= "Output of yum install cmd:\n$yum_result\n\n";
+	$body .= "Message sent at the following timestamp: $current_timestamp.";
+
 	send_email($sub, $body);
 }
 else {
@@ -154,6 +160,8 @@ else {
 	$body .= " I know how to handle.  Please login and check the logs to see what needs to be done!\n";
 	$body .= "List of IPs for this server:\n$all_ips";
 	$body .= $yum_err_msg;
+	$body .= "Message sent at the following timestamp: $current_timestamp.";
+
 	send_email($sub, $body);
 }
 
