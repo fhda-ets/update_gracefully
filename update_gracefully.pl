@@ -123,11 +123,12 @@ else {
 		$yum_err_msg = $result;
 	}
 }
+
+chomp(my $current_timestamp = `/bin/date +"%Y-%m-%d %H:%M:%S"`);
 if ($should_reboot == 0) {
 	print_log(" - Reboot does not appear to be required at this time.\n");
 }
 elsif ($should_reboot == 1) {
-	chomp(my $current_timestamp = `/bin/date +"%Y-%m-%d %H:%M:%S"`);
 
 	if ($auto_restart =~ /yes/i) {
 		print_log(" - Timestamp: $current_timestamp.\n");
