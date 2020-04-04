@@ -112,7 +112,7 @@ if ($rh6) {
 else {
 	my $restart_required_cmd = '/usr/bin/needs-restarting -r; echo $?';
 	$result = `$restart_required_cmd`;
-	if ($result =~ /Reboot is probably not necessary/i) {
+	if (($result =~ /Reboot is probably not necessary/i) or ($result =~ /Reboot should not be necessary/)){
 		$should_reboot = 0;
 	}
 	elsif ($result =~ /Reboot is required to ensure that your system benefits from these updates/i) {
