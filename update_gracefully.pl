@@ -115,7 +115,8 @@ else {
 	if (($result =~ /Reboot is probably not necessary/i) or ($result =~ /Reboot should not be necessary/)){
 		$should_reboot = 0;
 	}
-	elsif ($result =~ /Reboot is required to ensure that your system benefits from these updates/i) {
+	elsif (($result =~ /Reboot is required to ensure that your system benefits from these updates/i)
+		|| ($result =~ /Reboot is required to fully utilize these updates/i)) {
 		$should_reboot = 1;
 	}
 	else {
@@ -142,7 +143,7 @@ elsif ($should_reboot == 1) {
 		# WE SHOULD WAIT A FEW SECONDS FOR THE EMAIL TO BE SENT BEFORE WE REBOOT
 		sleep 30;
 		if ($rh6) { my $result = `/sbin/shutdown -r now`; }
-		my $result = `/usr/sbin/shutdown -r now`;
+		my $result = `/usr/sbin/shutdown -r now || /sbin/shutdown -r now`;
 		exit;
 	}
 	print_log(" - Reboot required.  Notifying sysadmin.\n");
