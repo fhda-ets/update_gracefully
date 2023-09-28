@@ -5,8 +5,8 @@ system and/or notify other users.
 
 ## About
 
-This script will automatically create the log and config files if they do not exist.  This script uses ONLY core Perl modules - no additional modules need to be 
-installed.  As the script requires root access to perform system updates, it is expected that you will run this file out of the root cron.  We recommed something 
+This script will automatically create the log and config files if they do not exist.  This script originally used ONLY core Perl modules - no additional modules needed to be 
+installed. However, as of CentOS 9 Stream, you must manually ensure that perl-Findbin is available. (e.g., 'dnf install perl-FindBin') As the script requires root access to perform system updates, it is expected that you will run this file out of the root cron.  We recommed something 
 similar to the following:
 
 ```
