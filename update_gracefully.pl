@@ -55,7 +55,14 @@ $date_cmd .= ' +"%Y-%m-%d %H:%M"';
 chomp (my $current_time = `$date_cmd`);
 print_log("Beginning script at $current_time.\n");
 
-my $all_ips = `cat /etc/sysconfig/network-scripts/ifcfg-* | grep -i ipaddr | uniq`;
+# STARTING IN CENTOS 9, WE NEED TO USE NETWORKMANAGER INSTEAD OF IFCFG:
+my $all_ips;
+if (-e '/etc/sysconfig/network-scripts/readme-ifcfg-rh.txt') {
+	$all_ips = `cat /etc/NetworkManager/system-connections/*.nmconnection | grep -i ipaddr | uniq`;
+}
+else {
+	$all_ips = `cat /etc/sysconfig/network-scripts/ifcfg-* | grep -i ipaddr | uniq`;
+}
 
 # STEP 1a: LET'S MAKE SURE THE LOG FILE EXISTS
 unless (-e $logfile) {
